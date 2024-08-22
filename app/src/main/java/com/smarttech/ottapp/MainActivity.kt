@@ -8,10 +8,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager
+import com.google.android.exoplayer2.drm.FrameworkMediaDrm
+import com.google.android.exoplayer2.drm.HttpMediaDrmCallback
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
+import com.google.android.exoplayer2.util.Util
 import com.smarttech.ottapp.databinding.ActivityMainBinding
+import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
     private var player: ExoPlayer? = null
@@ -39,6 +46,11 @@ class MainActivity : AppCompatActivity() {
 
             // Attach the player to the PlayerView in the layout
             binding.playerView.player = player
+//
+//            // Set up the DRM session manager
+//            val drmSessionManager = buildDrmSessionManager("https://proxy.uat.widevine.com/proxy")
+
+
 
             // Create a MediaItem for the video URL
             val mediaItem = MediaItem.fromUri(Uri.parse("https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8"))
@@ -46,6 +58,12 @@ class MainActivity : AppCompatActivity() {
             // Create an HLS MediaSource
             val mediaSource = HlsMediaSource.Factory(DefaultHttpDataSource.Factory())
                 .createMediaSource(mediaItem)
+
+//            // Create the MediaSource with DRM
+//            val mediaSource = buildMediaSource(
+//                Uri.parse("https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"),
+//                drmSessionManager
+//            )
 
             // Prepare the player with the media source
             player?.setMediaSource(mediaSource)
@@ -56,6 +74,27 @@ class MainActivity : AppCompatActivity() {
             player?.playWhenReady = playWhenReady
         }
     }
+
+//    private fun buildDrmSessionManager(licenseUrl: String): DefaultDrmSessionManager {
+//        // Widevine UUID
+//        val widevineUuid: UUID = Util.getDrmUuid("widevine") ?: throw IllegalStateException("Widevine DRM not supported")
+//
+//        // MediaDrm callback to handle license acquisition
+//        val mediaDrmCallback = HttpMediaDrmCallback(licenseUrl, DefaultHttpDataSource.Factory())
+//
+//        // Create a DrmSessionManager using the Widevine UUID and MediaDrm callback
+//        return DefaultDrmSessionManager.Builder()
+//            .setUuidAndExoMediaDrmProvider(widevineUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+//            .build(mediaDrmCallback)
+//    }
+//
+//
+//    private fun buildMediaSource(uri: Uri, drmSessionManager: DefaultDrmSessionManager): MediaSource {
+//        // DASH media source with DRM support
+//        return DashMediaSource.Factory(DefaultHttpDataSource.Factory())
+//            .setDrmSessionManager(drmSessionManager)
+//            .createMediaSource(MediaItem.fromUri(uri))
+//    }
 
     private fun releasePlayer() {
         player?.let {
